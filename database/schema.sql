@@ -1,1 +1,83 @@
-﻿-- Database schema definitions
+﻿-- SQLite database schema for Road Incidents Studio
+
+-- Team members for RMIT Programming Studio project
+CREATE TABLE IF NOT EXISTS team_members (
+    member_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    full_name TEXT NOT NULL,
+    student_number TEXT,
+    role TEXT
+);
+
+-- Persona definitions for user research and storyboarding
+CREATE TABLE IF NOT EXISTS personas (
+    persona_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    age INTEGER,
+    occupation TEXT,
+    background TEXT,
+    goals TEXT,
+    pain_points TEXT,
+    assigned_student TEXT,
+    image_url TEXT
+);
+
+-- Project facts, insights and references
+CREATE TABLE IF NOT EXISTS facts (
+    fact_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    fact_title TEXT NOT NULL,
+    fact_value TEXT,
+    fact_description TEXT,
+    source_page TEXT
+);
+
+-- University-provided road incident data tables
+CREATE TABLE IF NOT EXISTS ACCIDENT (
+    ACCIDENT_NO INTEGER PRIMARY KEY,
+    ACCIDENTDATE TEXT,
+    ACCIDENTTIME TEXT,
+    ACCIDENT_TYPE TEXT,
+    SEVERITY TEXT,
+    SPEED_ZONE INTEGER,
+    NODE_ID INTEGER,
+    LIGHT_CONDITION TEXT,
+    ROAD_SURFACE_TYPE TEXT,
+    ATMOSPH_COND TEXT,
+    ROAD_GEOMETRY TEXT
+);
+
+CREATE TABLE IF NOT EXISTS PERSON (
+    PERSON_ID INTEGER PRIMARY KEY,
+    ACCIDENT_NO INTEGER,
+    SEX TEXT,
+    AGE_GROUP TEXT,
+    SEATING_POSITION TEXT,
+    ROAD_USER_TYPE TEXT,
+    HELMET_BELT_WORN TEXT,
+    EJECTED_CODE TEXT,
+    TAKEN_HOSPITAL TEXT,
+    PROT_FACTOR TEXT,
+    INJ_LEVEL TEXT,
+    LICENCE_STATE TEXT
+);
+
+CREATE TABLE IF NOT EXISTS VEHICLE (
+    VEHICLE_ID INTEGER PRIMARY KEY,
+    ACCIDENT_NO INTEGER,
+    VEHICLE_TYPE TEXT,
+    VEHICLE_YEAR_MANUF INTEGER,
+    ROAD_SURFACE_TYPE TEXT,
+    INITIAL_DIRECTION TEXT,
+    VEHICLE_BODY_STYLE TEXT,
+    CAUGHT_FIRE TEXT
+);
+
+CREATE TABLE IF NOT EXISTS NODE (
+    NODE_ID INTEGER PRIMARY KEY,
+    LGA_NAME TEXT,
+    SUBURB_NAME TEXT,
+    POSTCODE TEXT,
+    DEG_URBAN_NAME TEXT,
+    LATITUDE TEXT,
+    LONGITUDE TEXT
+);
+
