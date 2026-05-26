@@ -1,0 +1,1 @@
+﻿-- Level 2B query

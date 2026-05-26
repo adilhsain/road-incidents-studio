@@ -1,0 +1,1 @@
+﻿# Flask application entrypoint\nfrom flask import Flask, render_template\napp = Flask(__name__)\n\n@app.route("/")\ndef index():\n    return render_template("mission.html")\n\nif __name__ == "__main__":\n    app.run(debug=True)
