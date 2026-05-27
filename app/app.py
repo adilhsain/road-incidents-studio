@@ -22,81 +22,113 @@ def deep_analysis():
 
 @app.route("/api/team-members")
 def api_team_members():
-    query = "SELECT member_id, full_name, student_number, role FROM team_members"
-    results = execute_query(query)
-    return jsonify(results)
+    try:
+        query = "SELECT member_id, full_name, student_number, role FROM team_members ORDER BY member_id"
+        results = execute_query(query)
+        return jsonify(results)
+    except Exception as e:
+        return jsonify({"error": "Failed to load team members", "details": str(e)}), 500
 
 @app.route("/api/personas")
 def api_personas():
-    query = "SELECT persona_id, name, age, occupation, background, goals, pain_points, assigned_student, image_url FROM personas"
-    results = execute_query(query)
-    return jsonify(results)
+    try:
+        query = "SELECT persona_id, name, age, occupation, background, goals, pain_points, assigned_student, image_url FROM personas ORDER BY persona_id"
+        results = execute_query(query)
+        return jsonify(results)
+    except Exception as e:
+        return jsonify({"error": "Failed to load personas", "details": str(e)}), 500
 
 @app.route("/api/people-summary")
 def api_people_summary():
     injury_level = request.args.get("injury_level")
     age_group = request.args.get("age_group")
     road_user_type = request.args.get("road_user_type")
+    try:
+        base_query = (
+            "SELECT \n"
+            "  COALESCE(p.ROAD_USER_TYPE, 'Unknown') AS road_user_type,\n"
+            "  COALESCE(p.INJ_LEVEL, 'Unknown') AS inj_level,\n"
+            "  COUNT(*) AS total_people,\n"
+            "  SUM(CASE WHEN p.TAKEN_HOSPITAL = 'Yes' THEN 1 ELSE 0 END) AS hospital_count,\n"
+            "  SUM(CASE WHEN p.EJECTED_CODE NOT IN ('Not ejected', '0') THEN 1 ELSE 0 END) AS ejected_count\n"
+            "FROM PERSON p\n"
+            "JOIN ACCIDENT a ON p.ACCIDENT_NO = a.ACCIDENT_NO\n"
+            "WHERE 1=1\n"
+        )
 
-    base_query = "SELECT PERSON_ID, ACCIDENT_NO, SEX, AGE_GROUP, SEATING_POSITION, ROAD_USER_TYPE, HELMET_BELT_WORN, EJECTED_CODE, TAKEN_HOSPITAL, PROT_FACTOR, INJ_LEVEL, LICENCE_STATE FROM PERSON"
-    conditions = []
-    params = []
+        conditions = []
+        params = []
 
-    if injury_level:
-        conditions.append("INJ_LEVEL = ?")
-        params.append(injury_level)
-    if age_group:
-        conditions.append("AGE_GROUP = ?")
-        params.append(age_group)
-    if road_user_type:
-        conditions.append("ROAD_USER_TYPE = ?")
-        params.append(road_user_type)
+        if injury_level and injury_level != 'All':
+            conditions.append("AND p.INJ_LEVEL = ?")
+            params.append(injury_level)
+        if age_group and age_group != 'All':
+            conditions.append("AND p.AGE_GROUP = ?")
+            params.append(age_group)
+        if road_user_type and road_user_type != 'All':
+            conditions.append("AND p.ROAD_USER_TYPE = ?")
+            params.append(road_user_type)
 
-    if conditions:
-        base_query += " WHERE " + " AND ".join(conditions)
+        if conditions:
+            base_query += " " + " ".join(conditions) + "\n"
 
-    results = execute_query(base_query, params)
-    return jsonify(results)
+        base_query += (
+            "GROUP BY p.ROAD_USER_TYPE, p.INJ_LEVEL\n"
+            "ORDER BY total_people DESC"
+        )
+
+        results = execute_query(base_query, params)
+        return jsonify(results)
+    except Exception as e:
+        return jsonify({"error": "Failed to load people summary", "details": str(e)}), 500
 
 @app.route("/api/deep-analysis")
 def api_deep_analysis():
-    injury_type = request.args.get("injury_type")
-    conditions = []
-    params = []
+    try:
+        injury_type = (request.args.get("injury_type") or "all").lower()
 
-    if injury_type and injury_type != "All Injuries":
-        if injury_type == "Fatal Only":
-            conditions.append("INJ_LEVEL = ?")
-            params.append("Fatal")
-        elif injury_type == "Serious Injury Only":
-            conditions.append("INJ_LEVEL LIKE ?")
-            params.append("%Serious%")
+        outer_conditions = []
+        inner_conditions = []
 
-    where_clause = ""
-    if conditions:
-        where_clause = "WHERE " + " AND ".join(conditions)
+        if injury_type == 'fatal':
+            outer_conditions.append("p.INJ_LEVEL = 'Fatal'")
+            inner_conditions.append("p2.INJ_LEVEL = 'Fatal'")
+        elif injury_type == 'serious':
+            outer_conditions.append("p.INJ_LEVEL = 'Serious Injury'")
+            inner_conditions.append("p2.INJ_LEVEL = 'Serious Injury'")
 
-    query = (
-        "SELECT p.AGE_GROUP AS age_group, p.ROAD_USER_TYPE AS road_user_type, p.INJ_LEVEL AS inj_level, COUNT(*) AS incident_count "
-        "FROM PERSON p "
-        "JOIN ACCIDENT a USING (ACCIDENT_NO) "
-        f"{where_clause} "
-        "GROUP BY p.AGE_GROUP, p.ROAD_USER_TYPE, p.INJ_LEVEL "
-        "HAVING COUNT(*) > ("
-        "  SELECT AVG(group_count) FROM ("
-        "    SELECT COUNT(*) AS group_count "
-        "    FROM PERSON p2 "
-        "    JOIN ACCIDENT a2 USING (ACCIDENT_NO) "
-        f"{where_clause} "
-        "    GROUP BY p2.AGE_GROUP, p2.ROAD_USER_TYPE, p2.INJ_LEVEL"
-        "  ) AS avg_table"
-        ") "
-        "ORDER BY incident_count DESC "
-        "LIMIT 20"
-    )
+        outer_where = ("WHERE " + " AND ".join(outer_conditions)) if outer_conditions else ""
+        inner_where = ("WHERE " + " AND ".join(inner_conditions)) if inner_conditions else ""
 
-    results = execute_query(query, params)
-    return jsonify(results)
+        # Use the nested query from level3_b.sql structure
+        query = (
+            "SELECT p.AGE_GROUP AS age_group, p.ROAD_USER_TYPE AS road_user_type, p.INJ_LEVEL AS inj_level, COUNT(*) AS incident_count "
+            "FROM PERSON p "
+            "JOIN ACCIDENT a USING (ACCIDENT_NO) "
+            f"{outer_where} "
+            "GROUP BY p.AGE_GROUP, p.ROAD_USER_TYPE, p.INJ_LEVEL "
+            "HAVING COUNT(*) > ("
+            "  SELECT AVG(group_count) FROM ("
+            "    SELECT COUNT(*) AS group_count "
+            "    FROM PERSON p2 "
+            "    JOIN ACCIDENT a2 USING (ACCIDENT_NO) "
+            f"{inner_where} "
+            "    GROUP BY p2.AGE_GROUP, p2.ROAD_USER_TYPE, p2.INJ_LEVEL"
+            "  ) AS avg_table"
+            ") "
+            "ORDER BY incident_count DESC "
+            "LIMIT 20"
+        )
+
+        rows = execute_query(query)
+
+        # add rank
+        for idx, row in enumerate(rows, start=1):
+            row['rank'] = idx
+
+        return jsonify(rows)
+    except Exception as e:
+        return jsonify({"error": "Failed to run deep analysis", "details": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
