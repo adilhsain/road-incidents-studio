@@ -27,18 +27,28 @@ def execute_query(query, params=None):
     """
     params = params or []
     conn = None
-    try:
-        conn = get_db_connection()
-        cursor = conn.execute(query, params)
-        rows = cursor.fetchall()
-        return [dict(row) for row in rows]
-    except Exception as e:
-        # Log mysql.connector.Error specifically if available
-        if mysql_connector is not None and isinstance(e, getattr(mysql_connector, 'Error', Exception)):
-            logger.error("MySQL error executing query: %s", e)
-        else:
+    # Run with explicit mysql.connector.Error handling if the module is available
+    if mysql_connector is not None and hasattr(mysql_connector, 'Error'):
+        try:
+            conn = get_db_connection()
+            cursor = conn.execute(query, params)
+            rows = cursor.fetchall()
+            return [dict(row) for row in rows]
+        except getattr(mysql_connector, 'Error') as me:
+            logger.error("MySQL connector error executing query: %s", me)
+            return []
+        except Exception as e:
             logger.error("Database error executing query: %s", e)
-        return []
+            return []
+    else:
+        try:
+            conn = get_db_connection()
+            cursor = conn.execute(query, params)
+            rows = cursor.fetchall()
+            return [dict(row) for row in rows]
+        except Exception as e:
+            logger.error("Database error executing query: %s", e)
+            return []
     finally:
         if conn:
             conn.close()
