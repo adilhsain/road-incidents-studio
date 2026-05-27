@@ -1,24 +1,45 @@
 ﻿from flask import Flask, render_template, request, jsonify
-from app.db import execute_query
+from app.db import execute_query, test_connection
 
 app = Flask(__name__)
 app.secret_key = "replace-with-a-secure-key"
 
 @app.route("/")
 def index():
-    return render_template("mission.html")
+    try:
+        return render_template("mission.html")
+    except Exception as e:
+        return jsonify({"error": "Failed to render page", "details": str(e), "data": []}), 500
 
 @app.route("/mission")
 def mission():
-    return render_template("mission.html")
+    try:
+        return render_template("mission.html")
+    except Exception as e:
+        return jsonify({"error": "Failed to render page", "details": str(e), "data": []}), 500
 
 @app.route("/people")
 def people():
-    return render_template("people.html")
+    try:
+        return render_template("people.html")
+    except Exception as e:
+        return jsonify({"error": "Failed to render page", "details": str(e), "data": []}), 500
 
 @app.route("/deep-analysis")
 def deep_analysis():
-    return render_template("deep_people.html")
+    try:
+        return render_template("deep_people.html")
+    except Exception as e:
+        return jsonify({"error": "Failed to render page", "details": str(e), "data": []}), 500
+
+
+@app.route('/api/health')
+def api_health():
+    try:
+        db_ok = test_connection()
+        return jsonify({"status": "ok", "db_connected": bool(db_ok)})
+    except Exception as e:
+        return jsonify({"status": "error", "db_connected": False, "error": str(e)}), 500
 
 @app.route("/api/team-members")
 def api_team_members():
@@ -27,7 +48,7 @@ def api_team_members():
         results = execute_query(query)
         return jsonify(results)
     except Exception as e:
-        return jsonify({"error": "Failed to load team members", "details": str(e)}), 500
+        return jsonify({"error": "Failed to load team members", "details": str(e), "data": []}), 500
 
 @app.route("/api/personas")
 def api_personas():
@@ -36,7 +57,7 @@ def api_personas():
         results = execute_query(query)
         return jsonify(results)
     except Exception as e:
-        return jsonify({"error": "Failed to load personas", "details": str(e)}), 500
+        return jsonify({"error": "Failed to load personas", "details": str(e), "data": []}), 500
 
 @app.route("/api/people-summary")
 def api_people_summary():
@@ -80,7 +101,7 @@ def api_people_summary():
         results = execute_query(base_query, params)
         return jsonify(results)
     except Exception as e:
-        return jsonify({"error": "Failed to load people summary", "details": str(e)}), 500
+        return jsonify({"error": "Failed to load people summary", "details": str(e), "data": []}), 500
 
 @app.route("/api/deep-analysis")
 def api_deep_analysis():
@@ -128,7 +149,7 @@ def api_deep_analysis():
 
         return jsonify(rows)
     except Exception as e:
-        return jsonify({"error": "Failed to run deep analysis", "details": str(e)}), 500
+        return jsonify({"error": "Failed to run deep analysis", "details": str(e), "data": []}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

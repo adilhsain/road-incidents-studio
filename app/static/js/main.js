@@ -1,4 +1,48 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
+﻿// --- Utility helpers ---
+async function fetchData(url, params = {}) {
+  const u = new URL(url, window.location.origin);
+  Object.keys(params || {}).forEach((k) => {
+    if (params[k] !== undefined && params[k] !== null) u.searchParams.set(k, params[k]);
+  });
+  const resp = await fetch(u.toString());
+  if (!resp.ok) {
+    const text = await resp.text();
+    throw new Error(`Request failed ${resp.status}: ${text}`);
+  }
+  return resp.json();
+}
+
+function showLoading(elementId) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  el.innerHTML = '<div class="loading-spinner" aria-hidden="true"></div>';
+  el.hidden = false;
+}
+
+function showError(elementId, message) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  el.textContent = message;
+  el.hidden = false;
+}
+
+function formatPercent(value, total) {
+  const v = Number(value) || 0;
+  const t = Number(total) || 0;
+  if (!t) return '0.0%';
+  return `${((v / t) * 100).toFixed(1)}%`;
+}
+
+function colorCodeInjuryLevel(level) {
+  const l = String(level || '').trim().toLowerCase();
+  if (l === 'fatal') return 'injury-fatal';
+  if (l.includes('serious')) return 'injury-serious';
+  if (l.includes('not injured')) return 'injury-none';
+  if (l.includes('other')) return 'injury-other';
+  return 'injury-unknown';
+}
+
+document.addEventListener("DOMContentLoaded", () => {
   loadPersonas();
   loadTeamMembers();
   initializePeopleSummaryPage();
