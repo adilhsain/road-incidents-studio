@@ -1,7 +1,166 @@
 ﻿document.addEventListener("DOMContentLoaded", () => {
   loadPersonas();
   loadTeamMembers();
+  initializePeopleSummaryPage();
 });
+
+function initializePeopleSummaryPage() {
+  const searchButton = document.getElementById("search-button");
+  const resetButton = document.getElementById("reset-button");
+  if (!searchButton || !resetButton) {
+    return;
+  }
+
+  searchButton.addEventListener("click", () => {
+    fetchPeopleSummary();
+  });
+
+  resetButton.addEventListener("click", () => {
+    resetPeopleFilters();
+    fetchPeopleSummary();
+  });
+
+  fetchPeopleSummary();
+}
+
+function fetchPeopleSummary() {
+  const loading = document.getElementById("people-loading");
+  const error = document.getElementById("people-error");
+  const emptyMessage = document.getElementById("people-empty");
+  const table = document.getElementById("people-table");
+  const resultCount = document.getElementById("result-count");
+  const summaryGrid = document.getElementById("summary-grid");
+
+  if (!loading || !error || !emptyMessage || !table || !resultCount || !summaryGrid) {
+    return;
+  }
+
+  loading.hidden = false;
+  error.hidden = true;
+  emptyMessage.hidden = true;
+  table.hidden = true;
+
+  const params = new URLSearchParams();
+  const injuryLevel = document.getElementById("injury-level-select").value;
+  const ageGroup = document.getElementById("age-group-select").value;
+  const roadUser = document.getElementById("road-user-select").value;
+
+  if (injuryLevel && injuryLevel !== "All") {
+    params.set("injury_level", injuryLevel);
+  }
+  if (ageGroup && ageGroup !== "All") {
+    params.set("age_group", ageGroup);
+  }
+  if (roadUser && roadUser !== "All") {
+    params.set("road_user_type", roadUser);
+  }
+
+  fetch(`/api/people-summary?${params.toString()}`)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`API returned status ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      loading.hidden = true;
+      renderPeopleSummary(data);
+    })
+    .catch((fetchError) => {
+      loading.hidden = true;
+      error.hidden = false;
+      error.textContent = `Unable to load people summary. ${fetchError.message}`;
+    });
+}
+
+function renderPeopleSummary(data) {
+  const table = document.getElementById("people-table");
+  const tbody = table.querySelector("tbody");
+  const resultCount = document.getElementById("result-count");
+  const emptyMessage = document.getElementById("people-empty");
+  const summaryGrid = document.getElementById("summary-grid");
+
+  if (!Array.isArray(data) || data.length === 0) {
+    tbody.innerHTML = "";
+    table.hidden = true;
+    resultCount.textContent = "Showing 0 results";
+    summaryGrid.innerHTML = "";
+    emptyMessage.hidden = false;
+    return;
+  }
+
+  const sortedData = data.slice().sort((a, b) => b.total_people - a.total_people);
+  const totalPeople = sortedData.reduce((sum, item) => sum + Number(item.total_people || 0), 0);
+  const totalHospital = sortedData.reduce((sum, item) => sum + Number(item.hospital_count || 0), 0);
+  const totalRows = sortedData.length;
+  const admissionRate = totalPeople ? ((totalHospital / totalPeople) * 100).toFixed(1) : "0.0";
+
+  resultCount.textContent = `Showing ${totalRows} results`;
+  summaryGrid.innerHTML = `
+    <div class="summary-card">
+      <span class="summary-label">Total Records</span>
+      <strong>${totalRows}</strong>
+    </div>
+    <div class="summary-card">
+      <span class="summary-label">Total People</span>
+      <strong>${totalPeople}</strong>
+    </div>
+    <div class="summary-card">
+      <span class="summary-label">Overall Hospital Admission Rate</span>
+      <strong>${admissionRate}%</strong>
+    </div>
+  `;
+
+  tbody.innerHTML = sortedData
+    .map((row) => {
+      const hospitalRate = row.total_people ? `${((row.hospital_count / row.total_people) * 100).toFixed(1)}%` : "0.0%";
+      const injuryClass = getInjuryLevelClass(row.INJ_LEVEL || row.injury_level || "");
+      return `
+        <tr>
+          <td>${row.ROAD_USER_TYPE || row.road_user_type || "Unknown"}</td>
+          <td><span class="level-badge ${injuryClass}">${row.INJ_LEVEL || row.injury_level || "Unknown"}</span></td>
+          <td>${row.total_people || 0}</td>
+          <td>${row.hospital_count || 0}</td>
+          <td>${row.ejected_count || 0}</td>
+          <td>${hospitalRate}</td>
+        </tr>
+      `;
+    })
+    .join("");
+
+  table.hidden = false;
+  emptyMessage.hidden = true;
+}
+
+function getInjuryLevelClass(level) {
+  const normalized = String(level).trim().toLowerCase();
+  if (normalized === "fatal") {
+    return "level-fatal";
+  }
+  if (normalized.includes("serious")) {
+    return "level-serious";
+  }
+  if (normalized.includes("not injured") || normalized === "not injured") {
+    return "level-not-injured";
+  }
+  return "level-other";
+}
+
+function resetPeopleFilters() {
+  const injuryLevel = document.getElementById("injury-level-select");
+  const ageGroup = document.getElementById("age-group-select");
+  const roadUser = document.getElementById("road-user-select");
+
+  if (injuryLevel) {
+    injuryLevel.value = "All";
+  }
+  if (ageGroup) {
+    ageGroup.value = "All";
+  }
+  if (roadUser) {
+    roadUser.value = "All";
+  }
+}
 
 function loadPersonas() {
   const container = document.getElementById("persona-grid");

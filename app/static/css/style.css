@@ -358,3 +358,142 @@ a {
   }
 }
 
+.page-header h1 {
+  margin-bottom: 0.5rem;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--orange);
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.persona-reference {
+  color: var(--muted);
+  margin-top: 1rem;
+}
+
+.filter-panel {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: end;
+}
+
+.filter-group {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.filter-group select {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(26, 39, 68, 0.16);
+  background: var(--white);
+  font: inherit;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.summary-card {
+  background: #ffffff;
+  border: 1px solid rgba(26, 39, 68, 0.1);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  box-shadow: 0 8px 24px rgba(26, 39, 68, 0.05);
+}
+
+.summary-label {
+  display: block;
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+}
+
+.results-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.level-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.level-fatal {
+  background: rgba(216, 67, 67, 0.14);
+  color: #b02a37;
+}
+
+.level-serious {
+  background: rgba(232, 93, 4, 0.14);
+  color: #b35200;
+}
+
+.level-other {
+  background: rgba(234, 191, 57, 0.16);
+  color: #7d5f00;
+}
+
+.level-not-injured {
+  background: rgba(67, 160, 71, 0.16);
+  color: #1d591d;
+}
+
+@media (max-width: 992px) {
+  .filter-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .site-header {
+    padding: 1rem;
+  }
+
+  .content-area {
+    padding: 1rem;
+  }
+
+  .main-nav {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .filter-actions {
+    justify-content: stretch;
+    flex-direction: column;
+  }
+}
+

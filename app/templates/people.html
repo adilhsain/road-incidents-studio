@@ -1,1 +1,83 @@
-﻿{% extends "base.html" %}\n{% block content %}<h1>People</h1>{% endblock %}
+﻿{% extends "base.html" %}
+
+{% block content %}
+<section class="card content-section">
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Student B — Level 2 Summary</p>
+      <h1>People &amp; Injuries — Summarised View</h1>
+      <p>Explore how different road users are affected by accidents. Filter by injury level, age group, or road user type to see summarised statistics.</p>
+      <p class="persona-reference"><strong>Dr. Sarah Mitchell</strong> (Emergency Medicine Researcher): This page helps Dr. Mitchell quickly identify which groups are most at risk.</p>
+    </div>
+  </div>
+</section>
+
+<section class="card content-section">
+  <h2>Filter Controls</h2>
+  <div class="filter-panel">
+    <div class="filter-group">
+      <label for="injury-level-select">Injury Level</label>
+      <select id="injury-level-select">
+        <option value="All">All</option>
+        <option value="Fatal">Fatal</option>
+        <option value="Serious Injury">Serious Injury</option>
+        <option value="Other Injury">Other Injury</option>
+        <option value="Not Injured">Not Injured</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="age-group-select">Age Group</label>
+      <select id="age-group-select">
+        <option value="All">All</option>
+        <option value="0-4">0-4</option>
+        <option value="5-12">5-12</option>
+        <option value="13-17">13-17</option>
+        <option value="18-25">18-25</option>
+        <option value="26-39">26-39</option>
+        <option value="40-64">40-64</option>
+        <option value="65+">65+</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="road-user-select">Road User Type</label>
+      <select id="road-user-select">
+        <option value="All">All</option>
+        <option value="Driver">Driver</option>
+        <option value="Passenger">Passenger</option>
+        <option value="Pedestrian">Pedestrian</option>
+        <option value="Motorcyclist">Motorcyclist</option>
+        <option value="Cyclist">Cyclist</option>
+      </select>
+    </div>
+    <div class="filter-actions">
+      <button id="search-button" class="btn-primary">Search</button>
+      <button id="reset-button" class="btn-secondary">Reset Filters</button>
+    </div>
+  </div>
+</section>
+
+<section class="card content-section">
+  <div class="summary-grid" id="summary-grid"></div>
+  <div class="results-bar">
+    <p id="result-count">Showing 0 results</p>
+    <div id="people-error" class="error-text" hidden></div>
+  </div>
+  <div id="people-loading" class="loading-text">Loading summary data…</div>
+  <div id="people-empty" class="error-text" hidden>No data found for selected filters.</div>
+  <div class="table-responsive">
+    <table id="people-table" class="data-table" hidden>
+      <thead>
+        <tr>
+          <th>Road User Type</th>
+          <th>Injury Level</th>
+          <th>Total People</th>
+          <th>Taken to Hospital</th>
+          <th>Ejected Count</th>
+          <th>Hospital Rate %</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
