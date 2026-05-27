@@ -61,19 +61,41 @@ def api_people_summary():
 @app.route("/api/deep-analysis")
 def api_deep_analysis():
     injury_type = request.args.get("injury_type")
-    if not injury_type:
-        return jsonify({"error": "Missing required query parameter: injury_type"}), 400
+    conditions = []
+    params = []
+
+    if injury_type and injury_type != "All Injuries":
+        if injury_type == "Fatal Only":
+            conditions.append("INJ_LEVEL = ?")
+            params.append("Fatal")
+        elif injury_type == "Serious Injury Only":
+            conditions.append("INJ_LEVEL LIKE ?")
+            params.append("%Serious%")
+
+    where_clause = ""
+    if conditions:
+        where_clause = "WHERE " + " AND ".join(conditions)
 
     query = (
-        "SELECT p.ROAD_USER_TYPE, COUNT(*) AS incident_count, "
-        "SUM(CASE WHEN a.SPEED_ZONE IS NOT NULL THEN 1 ELSE 0 END) AS speed_zone_records "
+        "SELECT p.AGE_GROUP AS age_group, p.ROAD_USER_TYPE AS road_user_type, p.INJ_LEVEL AS inj_level, COUNT(*) AS incident_count "
         "FROM PERSON p "
-        "JOIN ACCIDENT a ON p.ACCIDENT_NO = a.ACCIDENT_NO "
-        "WHERE p.INJ_LEVEL = ? "
-        "GROUP BY p.ROAD_USER_TYPE"
+        "JOIN ACCIDENT a USING (ACCIDENT_NO) "
+        f"{where_clause} "
+        "GROUP BY p.AGE_GROUP, p.ROAD_USER_TYPE, p.INJ_LEVEL "
+        "HAVING COUNT(*) > ("
+        "  SELECT AVG(group_count) FROM ("
+        "    SELECT COUNT(*) AS group_count "
+        "    FROM PERSON p2 "
+        "    JOIN ACCIDENT a2 USING (ACCIDENT_NO) "
+        f"{where_clause} "
+        "    GROUP BY p2.AGE_GROUP, p2.ROAD_USER_TYPE, p2.INJ_LEVEL"
+        "  ) AS avg_table"
+        ") "
+        "ORDER BY incident_count DESC "
+        "LIMIT 20"
     )
 
-    results = execute_query(query, [injury_type])
+    results = execute_query(query, params)
     return jsonify(results)
 
 if __name__ == "__main__":

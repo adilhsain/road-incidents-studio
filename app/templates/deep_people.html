@@ -1,1 +1,89 @@
-﻿{% extends "base.html" %}\n{% block content %}<h1>Deep People</h1>{% endblock %}
+﻿{% extends "base.html" %}
+
+{% block content %}
+<section class="card content-section">
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Student B — Level 3 Deep Analysis</p>
+      <h1>Deep Analysis — Above-Average Risk Groups</h1>
+      <p>Discover which combinations of age group, road user type, and injury level occur MORE frequently than the statistical average — revealing hidden high-risk patterns in Victorian road incident data.</p>
+      <p class="methodology">This analysis uses a nested SQL query. The inner query calculates the average incident count across all demographic groups. The outer query then returns only those groups whose count exceeds that average — surfacing statistically significant risk patterns.</p>
+    </div>
+  </div>
+</section>
+
+<section class="card content-section">
+  <div class="analysis-controls">
+    <div class="filter-group">
+      <label for="injury-type-select">Focus on Injury Type</label>
+      <select id="injury-type-select">
+        <option value="All Injuries">All Injuries</option>
+        <option value="Fatal Only">Fatal Only</option>
+        <option value="Serious Injury Only">Serious Injury Only</option>
+      </select>
+    </div>
+    <button id="run-analysis-button" class="btn-primary">Run Analysis</button>
+  </div>
+
+  <details class="explanation-panel">
+    <summary>What does this mean?</summary>
+    <p>This nested analysis compares each demographic group's incident frequency to the average frequency across all groups. By focusing on the groups above the average, we highlight those most likely to represent a significant risk and deserve further investigation.</p>
+  </details>
+</section>
+
+<section class="card content-section deep-grid">
+  <div class="deep-results">
+    <h2>Analysis Results</h2>
+    <div class="results-bar">
+      <p id="deep-result-count">Showing 0 results</p>
+      <div id="deep-error" class="error-text" hidden></div>
+    </div>
+    <div id="deep-loading" class="loading-text">Loading analysis data…</div>
+    <div id="deep-empty" class="error-text" hidden>No high-risk groups were found for this filter.</div>
+    <div class="table-responsive">
+      <table id="deep-table" class="data-table" hidden>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Age Group</th>
+            <th>Road User Type</th>
+            <th>Injury Level</th>
+            <th>Incident Count</th>
+            <th>vs Average</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <aside class="insights-panel">
+    <h2>Key Findings</h2>
+    <div id="insights-list" class="insights-list"></div>
+    <div class="insights-interpretation">
+      <h3>What this means for emergency services</h3>
+      <p>By revealing the demographic groups that exceed average risk levels, emergency services can prioritise training, resource allocation, and targeted response planning for the most vulnerable road user populations.</p>
+    </div>
+  </aside>
+</section>
+
+<section class="card content-section methodology-note">
+  <h2>Methodology Note</h2>
+  <p>The query uses a nested structure. First, it calculates the average number of incidents per demographic group. Then it selects only those groups exceeding that average, ranking the most significant risks.</p>
+  <pre><code id="deep-query">SELECT AGE_GROUP, ROAD_USER_TYPE, INJ_LEVEL, COUNT(*) AS incident_count
+FROM PERSON p
+JOIN ACCIDENT a USING (ACCIDENT_NO)
+GROUP BY AGE_GROUP, ROAD_USER_TYPE, INJ_LEVEL
+HAVING COUNT(*) > (
+  SELECT AVG(group_count)
+  FROM (
+    SELECT COUNT(*) AS group_count
+    FROM PERSON p2
+    JOIN ACCIDENT a2 USING (ACCIDENT_NO)
+    GROUP BY AGE_GROUP, ROAD_USER_TYPE, INJ_LEVEL
+  ) AS avg_table
+)
+ORDER BY incident_count DESC
+LIMIT 20;</code></pre>
+</section>
+{% endblock %}

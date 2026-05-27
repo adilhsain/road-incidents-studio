@@ -2,6 +2,7 @@
   loadPersonas();
   loadTeamMembers();
   initializePeopleSummaryPage();
+  initializeDeepAnalysisPage();
 });
 
 function initializePeopleSummaryPage() {
@@ -21,6 +22,130 @@ function initializePeopleSummaryPage() {
   });
 
   fetchPeopleSummary();
+}
+
+function initializeDeepAnalysisPage() {
+  const runButton = document.getElementById("run-analysis-button");
+  if (!runButton) {
+    return;
+  }
+
+  runButton.addEventListener("click", () => {
+    fetchDeepAnalysis();
+  });
+
+  fetchDeepAnalysis();
+}
+
+function fetchDeepAnalysis() {
+  const loading = document.getElementById("deep-loading");
+  const error = document.getElementById("deep-error");
+  const emptyMessage = document.getElementById("deep-empty");
+  const table = document.getElementById("deep-table");
+  const resultCount = document.getElementById("deep-result-count");
+  const insightsList = document.getElementById("insights-list");
+  const queryCode = document.getElementById("deep-query");
+
+  if (!loading || !error || !emptyMessage || !table || !resultCount || !insightsList || !queryCode) {
+    return;
+  }
+
+  loading.hidden = false;
+  error.hidden = true;
+  emptyMessage.hidden = true;
+  table.hidden = true;
+  insightsList.innerHTML = "";
+
+  const params = new URLSearchParams();
+  const injuryType = document.getElementById("injury-type-select").value;
+  if (injuryType && injuryType !== "All Injuries") {
+    params.set("injury_type", injuryType);
+  }
+
+  fetch(`/api/deep-analysis?${params.toString()}`)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`API returned status ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      loading.hidden = true;
+      renderDeepAnalysis(data);
+    })
+    .catch((fetchError) => {
+      loading.hidden = true;
+      error.hidden = false;
+      error.textContent = `Unable to load deep analysis data. ${fetchError.message}`;
+    });
+}
+
+function renderDeepAnalysis(data) {
+  const table = document.getElementById("deep-table");
+  const tbody = table.querySelector("tbody");
+  const resultCount = document.getElementById("deep-result-count");
+  const emptyMessage = document.getElementById("deep-empty");
+  const insightsList = document.getElementById("insights-list");
+
+  if (!Array.isArray(data) || data.length === 0) {
+    tbody.innerHTML = "";
+    table.hidden = true;
+    resultCount.textContent = "Showing 0 results";
+    insightsList.innerHTML = "";
+    emptyMessage.hidden = false;
+    return;
+  }
+
+  const sortedData = data.slice().sort((a, b) => b.incident_count - a.incident_count).slice(0, 20);
+  const averageCount = sortedData.reduce((sum, row) => sum + Number(row.incident_count || 0), 0) / sortedData.length;
+  const roundedAverage = averageCount ? Number(averageCount.toFixed(1)) : 0;
+
+  resultCount.textContent = `Showing ${sortedData.length} results`;
+
+  tbody.innerHTML = sortedData
+    .map((row, index) => {
+      const count = Number(row.incident_count || 0);
+      const diffPercent = averageCount ? ((count - averageCount) / averageCount) * 100 : 0;
+      const diffText = `${diffPercent >= 0 ? "+" : ""}${diffPercent.toFixed(1)}% above average`;
+      const medal = getMedalIcon(index + 1);
+      return `
+        <tr>
+          <td>${medal} ${index + 1}</td>
+          <td>${row.age_group || row.AGE_GROUP || "Unknown"}</td>
+          <td>${row.road_user_type || row.ROAD_USER_TYPE || "Unknown"}</td>
+          <td>${row.inj_level || row.INJ_LEVEL || "Unknown"}</td>
+          <td>${count}</td>
+          <td>${diffText}</td>
+        </tr>
+      `;
+    })
+    .join("");
+
+  insightsList.innerHTML = generateDeepInsights(sortedData, averageCount);
+  table.hidden = false;
+  emptyMessage.hidden = true;
+}
+
+function getMedalIcon(rank) {
+  if (rank === 1) return "🥇";
+  if (rank === 2) return "🥈";
+  if (rank === 3) return "🥉";
+  return "";
+}
+
+function generateDeepInsights(rows, averageCount) {
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return "<p>No insights available.</p>";
+  }
+
+  const topRows = rows.slice(0, 3);
+  return topRows
+    .map((row, index) => {
+      const count = Number(row.incident_count || 0);
+      const diffPercent = averageCount ? ((count - averageCount) / averageCount) * 100 : 0;
+      return `<p><strong>Insight ${index + 1}:</strong> The highest risk group is ${row.age_group || row.AGE_GROUP || "Unknown"} ${row.road_user_type || row.ROAD_USER_TYPE || "road user"} with ${count} incidents — ${diffPercent >= 0 ? "+" : ""}${diffPercent.toFixed(1)}% above average.</p>`;
+    })
+    .join("");
 }
 
 function fetchPeopleSummary() {

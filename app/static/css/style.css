@@ -467,12 +467,77 @@ a {
   color: #1d591d;
 }
 
+.analysis-controls {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  align-items: end;
+  margin-bottom: 1rem;
+}
+
+.explanation-panel {
+  background: #ffffff;
+  border: 1px solid rgba(26, 39, 68, 0.12);
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+  margin-top: 1rem;
+}
+
+.explanation-panel summary {
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.deep-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+
+.deep-results {
+  display: grid;
+  gap: 1rem;
+}
+
+.insights-panel {
+  background: #ffffff;
+  border: 1px solid rgba(26, 39, 68, 0.12);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.insights-list p {
+  margin: 0 0 1rem;
+  line-height: 1.75;
+}
+
+.insights-interpretation h3 {
+  margin-top: 0;
+}
+
+.methodology-note pre {
+  background: #f3f5fb;
+  border-radius: 0.85rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
 @media (max-width: 992px) {
   .filter-panel {
     grid-template-columns: 1fr;
   }
 
   .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .analysis-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .deep-grid {
     grid-template-columns: 1fr;
   }
 }
