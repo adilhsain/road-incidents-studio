@@ -9,21 +9,21 @@ This project explores road safety in Victoria by analyzing accident, person and 
 
 ### Tech Stack
 - Backend: Python 3.x + Flask
-- Database: MySQL
+- Database: SQLite
 - Frontend: HTML5, CSS3, Vanilla JavaScript
 
 ### Setup Instructions
-1. Clone the repository
-2. Install dependencies:
+1. Clone the repository.
+2. Create and activate a Python virtual environment:
+   ```bash
+   python -m venv venv
+   .\venv\Scripts\activate
+   ```
+3. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-3. Set up MySQL database:
-   ```bash
-   mysql -u <username> -p < database/schema.sql
-   mysql -u <username> -p < database/seed_data.sql
-   ```
-4. Configure DB credentials in `app/db.py`
+4. The app will automatically initialize and seed the SQLite database on first run.
 5. Run the application:
    ```bash
    python app/app.py
@@ -74,4 +74,10 @@ The project uses a university-provided accident dataset with tables such as:
 
 ### Student B — Sub-Task B Focus
 Student B focuses on the "people and injuries" dimension of the road accident dataset. This includes summarising injury outcomes, supporting filtered exploration, and highlighting risk groups with deeper analysis.
+
+Implementation status for Student B:
+- Level 1 Mission page is live and connected to the database.
+- Level 2 People & Injuries page is fully dynamic with injury, age group, and road user filters.
+- Level 3 Deep Analysis page uses a nested SQL query and fallback ranking when the sample dataset has uniform counts.
+- The app uses local SQLite for data persistence and seed data is created automatically on first run.
 

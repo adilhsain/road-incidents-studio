@@ -69,7 +69,7 @@ def api_people_summary():
             "SELECT \n"
             "  COALESCE(p.ROAD_USER_TYPE, 'Unknown') AS road_user_type,\n"
             "  COALESCE(p.INJ_LEVEL, 'Unknown') AS inj_level,\n"
-            "  COUNT(*) AS total_people,\n"
+            "  COUNT(DISTINCT p.PERSON_ID) AS total_people,\n"
             "  SUM(CASE WHEN p.TAKEN_HOSPITAL = 'Yes' THEN 1 ELSE 0 END) AS hospital_count,\n"
             "  SUM(CASE WHEN p.EJECTED_CODE NOT IN ('Not ejected', '0') THEN 1 ELSE 0 END) AS ejected_count\n"
             "FROM PERSON p\n"
@@ -106,17 +106,17 @@ def api_people_summary():
 @app.route("/api/deep-analysis")
 def api_deep_analysis():
     try:
-        injury_type = (request.args.get("injury_type") or "all").lower()
+        injury_type = (request.args.get("injury_type") or "all").strip().lower()
 
         outer_conditions = []
         inner_conditions = []
 
-        if injury_type == 'fatal':
+        if 'fatal' in injury_type:
             outer_conditions.append("p.INJ_LEVEL = 'Fatal'")
             inner_conditions.append("p2.INJ_LEVEL = 'Fatal'")
-        elif injury_type == 'serious':
-            outer_conditions.append("p.INJ_LEVEL = 'Serious Injury'")
-            inner_conditions.append("p2.INJ_LEVEL = 'Serious Injury'")
+        elif 'serious' in injury_type:
+            outer_conditions.append("p.INJ_LEVEL LIKE '%Serious%'")
+            inner_conditions.append("p2.INJ_LEVEL LIKE '%Serious%'")
 
         outer_where = ("WHERE " + " AND ".join(outer_conditions)) if outer_conditions else ""
         inner_where = ("WHERE " + " AND ".join(inner_conditions)) if inner_conditions else ""
@@ -143,6 +143,19 @@ def api_deep_analysis():
 
         rows = execute_query(query)
 
+        # If no groups exceed the average due to small sample data, fall back to top groups.
+        if not rows:
+            fallback_query = (
+                "SELECT p.AGE_GROUP AS age_group, p.ROAD_USER_TYPE AS road_user_type, p.INJ_LEVEL AS inj_level, COUNT(*) AS incident_count "
+                "FROM PERSON p "
+                "JOIN ACCIDENT a USING (ACCIDENT_NO) "
+                f"{outer_where} "
+                "GROUP BY p.AGE_GROUP, p.ROAD_USER_TYPE, p.INJ_LEVEL "
+                "ORDER BY incident_count DESC "
+                "LIMIT 10"
+            )
+            rows = execute_query(fallback_query)
+
         # add rank
         for idx, row in enumerate(rows, start=1):
             row['rank'] = idx
@@ -151,5 +164,11 @@ def api_deep_analysis():
     except Exception as e:
         return jsonify({"error": "Failed to run deep analysis", "details": str(e), "data": []}), 500
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+
+@app.errorhandler(404)
+def not_found(e):
+    return render_template('base.html'), 404
+
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)

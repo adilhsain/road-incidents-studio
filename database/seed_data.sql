@@ -29,3 +29,22 @@ VALUES
     ('Hospital Admissions', '~18,000', 'Estimated serious injury hospitalisations from road crashes per year in Victoria', 'landing'),
     ('Most Vulnerable Road Users', 'Pedestrians & Cyclists', 'Pedestrians and cyclists account for a disproportionate share of serious injuries relative to their road usage', 'landing'),
     ('Seat Belt Compliance', '98.5%', 'Seat belt wearing rate in Victoria, yet unrestrained occupants account for a higher share of fatalities', 'landing');
+
+-- Sample accident and person seed data for summary and deep analyses
+INSERT INTO ACCIDENT (ACCIDENT_NO, ACCIDENTDATE, ACCIDENTTIME, ACCIDENT_TYPE, SEVERITY, SPEED_ZONE, NODE_ID, LIGHT_CONDITION, ROAD_SURFACE_TYPE, ATMOSPH_COND, ROAD_GEOMETRY)
+VALUES
+    (1001, '2025-07-12', '14:35', 'Intersection', 'Serious', 60, 101, 'Daylight', 'Dry', 'Fine', 'Curve'),
+    (1002, '2025-08-03', '18:10', 'Urban', 'Serious', 50, 102, 'Dusk', 'Wet', 'Rain', 'Straight'),
+    (1003, '2025-08-20', '22:40', 'Freeway', 'Fatal', 100, 103, 'Night', 'Wet', 'Fog', 'Straight'),
+    (1004, '2025-09-05', '08:15', 'Urban', 'Minor', 40, 104, 'Daylight', 'Dry', 'Fine', 'Straight');
+
+INSERT INTO PERSON (PERSON_ID, ACCIDENT_NO, SEX, AGE_GROUP, SEATING_POSITION, ROAD_USER_TYPE, HELMET_BELT_WORN, EJECTED_CODE, TAKEN_HOSPITAL, PROT_FACTOR, INJ_LEVEL, LICENCE_STATE)
+VALUES
+    (1, 1001, 'Male', '26-39', 'Driver', 'Driver', 'Yes', 'Not ejected', 'No', 'Seatbelt', 'Serious Injury', 'VIC'),
+    (2, 1001, 'Female', '26-39', 'Passenger', 'Passenger', 'Yes', 'Not ejected', 'No', 'Seatbelt', 'Not Injured', 'VIC'),
+    (3, 1002, 'Male', '18-25', 'Driver', 'Motorcyclist', 'No', 'Ejected', 'Yes', 'Helmet', 'Fatal', 'VIC'),
+    (4, 1002, 'Female', '18-25', 'Passenger', 'Passenger', 'No', 'Not ejected', 'Yes', 'Seatbelt', 'Other Injury', 'VIC'),
+    (5, 1003, 'Male', '65+', 'Driver', 'Driver', 'Yes', 'Not ejected', 'Yes', 'Seatbelt', 'Fatal', 'VIC'),
+    (6, 1004, 'Male', '40-64', 'Cyclist', 'Cyclist', 'No', 'Not ejected', 'Yes', 'Helmet', 'Serious Injury', 'VIC'),
+    (7, 1004, 'Female', '40-64', 'Driver', 'Driver', 'Yes', 'Not ejected', 'No', 'Seatbelt', 'Not Injured', 'VIC'),
+    (8, 1004, 'Female', '13-17', 'Passenger', 'Passenger', 'Yes', 'Not ejected', 'No', 'Seatbelt', 'Other Injury', 'VIC');

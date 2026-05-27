@@ -1,1 +1,7 @@
 ﻿# Python/Flask artifacts\n__pycache__/\n*.pyc\ninstance/\n.env\n
+venv/
+*.exe
+__pycache__/
+*.pyc
+*.db
+*.sqlite3

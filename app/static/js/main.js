@@ -130,6 +130,12 @@ function renderDeepAnalysis(data) {
   const resultCount = document.getElementById("deep-result-count");
   const emptyMessage = document.getElementById("deep-empty");
   const insightsList = document.getElementById("insights-list");
+  const filterSummary = document.getElementById("deep-filter-summary");
+  const injuryType = document.getElementById("injury-type-select").value;
+
+  if (filterSummary) {
+    filterSummary.textContent = `Filter: ${injuryType}`;
+  }
 
   if (!Array.isArray(data) || data.length === 0) {
     tbody.innerHTML = "";
@@ -358,7 +364,7 @@ function loadPersonas() {
         .map(
           (persona) => `
             <article class="card persona-card">
-              <img src="https://via.placeholder.com/150" alt="Portrait of ${persona.name}" class="persona-image">
+              <img src="${persona.image_url || '/static/images/persona-placeholder.svg'}" alt="Portrait of ${persona.name}" class="persona-image" onerror="this.onerror=null; this.src='/static/images/persona-placeholder.svg'">
               <div class="persona-body">
                 <h3>${persona.name}</h3>
                 <p class="persona-meta"><strong>Age:</strong> ${persona.age} &bull; <strong>Occupation:</strong> ${persona.occupation}</p>
