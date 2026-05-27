@@ -1,1 +1,41 @@
-﻿<!doctype html>\n<html lang="en">\n<head>\n  <meta charset="utf-8">\n  <title>Road Incidents Studio</title>\n</head>\n<body>\n  <nav>Navigation</nav>\n  {% block content %}{% endblock %}\n</body>\n</html>
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="VicRoads Incident Insights - Victorian road incident analysis for RMIT Programming Studio.">
+  <title>VicRoads Incident Insights</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="site-header">
+      <div class="brand-wrap">
+        <a class="brand-link" href="/mission">
+          <span class="brand-logo">VicRoads</span>
+          <span class="brand-title">Incident Insights</span>
+        </a>
+      </div>
+
+      <nav class="main-nav" aria-label="Primary navigation">
+        <a class="nav-link {% if request.path == '/' or request.path == '/mission' %}active{% endif %}" href="/mission">Home / Mission</a>
+        <a class="nav-link {% if request.path == '/people' %}active{% endif %}" href="/people">People &amp; Injuries</a>
+        <a class="nav-link {% if request.path == '/deep-analysis' %}active{% endif %}" href="/deep-analysis">Deep Analysis</a>
+      </nav>
+    </header>
+
+    <main class="content-area">
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+      <p>RMIT Programming Studio S1 2026 | Road Incidents Data — Victoria, Australia</p>
+    </footer>
+  </div>
+
+  <script src="/static/js/main.js"></script>
+</body>
+</html>
