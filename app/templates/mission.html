@@ -1,1 +1,57 @@
-﻿{% extends "base.html" %}\n{% block content %}<h1>Mission</h1>{% endblock %}
+﻿{% extends "base.html" %}
+
+{% block content %}
+<section class="hero card">
+  <div class="hero-copy">
+    <p class="eyebrow">Student B — Level 1 Mission</p>
+    <h1>Our Mission: Understanding Road Trauma in Victoria</h1>
+    <p>Helping researchers and medical professionals understand injury patterns from road accidents using real Victorian crash data. This website supports evidence-based insights for emergency response, policy makers, and road safety research.</p>
+  </div>
+
+  <div class="mission-steps">
+    <h2>How to Use This Website</h2>
+    <div class="step-grid">
+      <article class="card step-card">
+        <div class="step-icon">1</div>
+        <h3>Mission page</h3>
+        <p>Understand the project and user personas driving the research focus.</p>
+      </article>
+      <article class="card step-card">
+        <div class="step-icon">2</div>
+        <h3>People &amp; Injuries page</h3>
+        <p>Explore summarised injury data by road user type and hospital outcomes.</p>
+      </article>
+      <article class="card step-card">
+        <div class="step-icon">3</div>
+        <h3>Deep Analysis page</h3>
+        <p>Discover hidden patterns in injury severity and risk factors from crash data.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="card content-section">
+  <h2>Who We Built This For</h2>
+  <div id="persona-loading" class="loading-text">Loading personas…</div>
+  <div id="persona-error" class="error-text" hidden></div>
+  <div id="persona-grid" class="persona-grid"></div>
+</section>
+
+<section class="card content-section">
+  <h2>Project Team</h2>
+  <div id="team-loading" class="loading-text">Loading team members…</div>
+  <div id="team-error" class="error-text" hidden></div>
+  <div class="table-responsive">
+    <table id="team-table" class="data-table" hidden>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Student Number</th>
+          <th>Role</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
