@@ -3,24 +3,13 @@
 -- team_members seed data
 INSERT INTO team_members (full_name, student_number, role)
 VALUES
-    ('Student A Name', 's1234567', 'Student A'),
-    ('Your Name Here', 's7654321', 'Student B');
+    ('Tayyab', 's4226244', 'Student B');
 
 -- personas seed data
 INSERT INTO personas (name, age, occupation, background, goals, pain_points, assigned_student, image_url)
 VALUES
-    ('Marcus Chen', 45, 'Road Safety Policy Analyst',
-     'Works at the Department of Transport, analyses road condition data to recommend infrastructure improvements.',
-     'Identify which atmospheric and road surface conditions correlate with highest accident severity. Compare accident rates across different speed zones and light conditions.',
-     'Data is scattered across multiple reports, hard to visualise trends, time-consuming to find meaningful patterns.',
-     'A',
-     NULL),
-    ('Dr. Sarah Mitchell', 38, 'Emergency Medicine Researcher',
-     'Conducts research at Royal Melbourne Hospital studying injury patterns from road accidents to improve emergency response protocols.',
-     'Understand which types of road users suffer the most severe injuries, identify patterns in hospital admission rates, determine if age group or seating position affects injury severity.',
-     'Needs aggregated injury data quickly, current reports do not link ejection data with injury outcomes, difficult to identify at-risk demographic groups.',
-     'B',
-     NULL);
+    ('Maya Thompson', 38, 'Local Council Road Safety Officer', 'Works for a local council in Victoria and is responsible for improving road safety within her municipality. She reviews road incident data, identifies high-risk areas, and supports decisions on road maintenance, signage, street lighting, and community safety programs.', 'Identify environmental conditions linked to higher crash rates; improve road safety planning and infrastructure decisions; support funding requests using crash data evidence; reduce crashes in high-risk areas; quickly compare crash patterns across different conditions.', 'Needs easy access to summarised crash information; wants filtering by weather, road surface and lighting conditions; needs visual charts and comparisons that are easy to understand; wants fast access to important crash trends without manually analysing raw data; needs clear insights to support road safety decision making.', 'A', NULL),
+    ('Dr Sarah Chen', 45, 'Trauma Research Analyst', 'Trauma research analyst specialising in road incident psychology. She studies how crashes affect cognitive functioning, stress responses, and long-term recovery, using data to develop evidence-based strategies that improve road safety interventions.', 'Use data to identify high-risk patterns and accident conditions such as weather or lighting that lead to severe injuries; analyse safety features such as airbags and seatbelts in Victorian crashes; improve post-crash care by providing emergency services data on which collisions require more attention.', 'Data is often too messy; accident and injury outcomes are not clearly aligned; critical medical information and road logs are kept separately; near misses are not captured, making it harder to identify close calls.', 'B', NULL);
 
 -- facts seed data
 INSERT INTO facts (fact_title, fact_value, fact_description, source_page)
